@@ -1,0 +1,17 @@
+version: "3.8"
+
+services:
+  core:
+    build:
+      context: ..
+      dockerfile: ./deployment/Dockerfile-local
+    image: xxx/core:latest
+    environment:
+      # service
+      SERVICE_NAME: "xxx/core:latest"
+      LOG_LEVEL: "-1"
+      # ...
+
+  postgres-db:
+
+  redis-db:

@@ -1,0 +1,23 @@
+variables:
+
+  SERVICE_TEST_NAME: ${CI_PROJECT_NAMESPACE}/${CI_PROJECT_NAME}:${CI_PIPELINE_IID}
+  IMAGE_TEST_NAME: $DOCKER_REGISTRY_URL/$SERVICE_TEST_NAME
+
+  STACK: ${CI_PROJECT_NAMESPACE}_${CI_PROJECT_NAME}
+  STACK_TEST: ${STACK}_test
+  STACK_TEST_CORE: ${STACK_TEST}_core  
+
+before_script:
+  - docker login -u $DOCKER_REGISTRY_USER -p $DOCKER_REGISTRY_PASSWORD $DOCKER_REGISTRY_URL
+
+build-test:
+  stage: build
+  script:
+    - docker compose -f deployment/docker-compose.test.yaml build
+    - docker compose -f deployment/docker-compose.test.yaml push
+
+deploy-test:
+  stage: deploy
+  script:
+    - docker stack deploy -c deployment/docker-compose.test.yaml $STACK_TEST --with-registry-auth
+    # - docker service update --force $STACK_TEST_CORE

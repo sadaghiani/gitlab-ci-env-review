@@ -1,0 +1,35 @@
+#  1/2 -- stage build
+
+ARG DOCKER_REGISTRY_URL
+FROM ${DOCKER_REGISTRY_URL}/golang:alpine AS builder
+
+ENV GO111MODULE=on \
+    CGO_ENABLED=0 \
+    GOOS=linux \
+    GOARCH=amd64 
+
+
+WORKDIR /build
+
+COPY go.mod .
+COPY go.sum .
+
+RUN go mod download
+
+COPY . .
+
+RUN go test ./... -v
+
+RUN go build -o main cmd/main.go
+
+# 2/2 -- stage dist
+
+FROM scratch
+
+WORKDIR /dist
+
+COPY --from=builder /build/main /dist/main
+COPY --from=builder /build/docs/* /dist/docs/
+COPY --from=builder /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/
+
+CMD ["/dist/main"]

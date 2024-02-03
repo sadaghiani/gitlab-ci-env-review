@@ -1,0 +1,33 @@
+version: "3.8"
+
+services:
+  core:
+    build:
+      context: ..
+      dockerfile: ./deployment/Dockerfile-test
+      args:
+        - DOCKER_REGISTRY_URL=$DOCKER_REGISTRY_URL
+    image: $IMAGE_TEST_NAME
+    environment:
+      # service
+      SERVICE_NAME: "$SERVICE_TEST_NAME"
+      LOG_LEVEL: "-1"
+      # ...
+
+  postgresql-db:
+    # ...
+    volumes:
+      - postgresql-data:/var/lib/postgresql/data
+
+  redis-db:   
+    # ...
+    volumes:
+      - redis-data:/data
+
+
+volumes:
+  postgresql-data:
+    driver: convoy
+  redis-data:
+    driver: convoy
+
